@@ -2,202 +2,217 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>LYNEXNON FC | Full Arsenal</title>
+    <title>LYNEXNON FC | Admin Control</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --orange: #ff4500; --bg: #000; --card: rgba(17, 17, 17, 0.9); --text: #fff; }
-        * { cursor: auto; }
-        a, button, .product-btn, .side-link, .logo, .cart-status { cursor: pointer; }
         body { font-family: 'Oswald', sans-serif; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('IMG_20251013_174038_955.jpg'); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text); margin: 0; overflow-x: hidden; text-transform: uppercase; }
         h1, h2, h3, .logo, .claw-alert-title { font-family: 'Creepster', system-ui; letter-spacing: 2px; }
         
-        /* AUTH SİSTEMİ */
         #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 90000; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: rgba(10, 10, 10, 0.95); border: 3px solid var(--orange); padding: 40px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 30px var(--orange); clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
         
         #main-content { display: none; }
         header { background: rgba(0, 0, 0, 0.9); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
-        .lang-select { background: #111; color: var(--orange); border: 1px solid var(--orange); padding: 5px; font-family: 'Oswald'; margin-right: 10px; text-transform: uppercase; }
         .cart-status { background: var(--orange); padding: 10px 20px; font-weight: bold; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); }
         
-        /* YAN MENÜ */
-        #side-menu { position: fixed; left: -300px; top: 0; width: 260px; height: 100%; background: rgba(10, 10, 10, 0.98); border-right: 3px solid var(--orange); transition: 0.4s; z-index: 2500; padding: 40px 20px; }
+        #side-menu { position: fixed; left: -300px; top: 0; width: 260px; height: 100%; background: rgba(10, 10, 10, 0.98); border-right: 3px solid var(--orange); transition: 0.4s; z-index: 2500; padding: 40px 20px; overflow-y: auto; }
         #side-menu.open { left: 0; }
-        .side-link { display: block; color: white; padding: 15px; border-bottom: 1px solid #222; font-weight: bold; text-decoration: none; }
+        .side-link { display: block; color: white; padding: 15px; border-bottom: 1px solid #222; font-weight: bold; text-decoration: none; cursor: pointer; }
         .side-link:hover { color: var(--orange); background: #111; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .page { display: none; padding: 20px; animation: fadeIn 0.5s; }
         .active { display: block; }
         
-        /* MAĞAZA GRİD */
         .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         @media (max-width: 900px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-        .product-btn { background: var(--card); border: 2px solid #333; text-align: center; transition: 0.3s; padding: 15px; }
-        .product-btn:hover { border-color: var(--orange); box-shadow: 0 0 15px var(--orange); transform: translateY(-5px); }
+        .product-btn { background: var(--card); border: 2px solid #333; text-align: center; padding: 15px; cursor: pointer; }
 
-        .checkout-btn { background: var(--orange); color: white; border: none; padding: 15px; width: 100%; font-weight: bold; font-family: 'Creepster'; letter-spacing: 2px; }
-        #claw-alert-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999999; align-items: center; justify-content: center; }
-        .claw-alert-box { background: #000; border: 3px solid var(--orange); padding: 40px; text-align: center; max-width: 450px; width: 90%; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
-        .pay-input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid var(--orange); color: #fff; box-sizing: border-box; }
+        .checkout-btn { background: var(--orange); color: white; border: none; padding: 15px; width: 100%; font-weight: bold; font-family: 'Creepster'; letter-spacing: 2px; cursor: pointer; }
+        .pay-input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid var(--orange); color: #fff; box-sizing: border-box; font-family: 'Oswald'; }
+        
+        /* Şikayet Listesi Stili */
+        .complaint-card { background: #111; border-left: 5px solid var(--orange); padding: 15px; margin-bottom: 10px; text-align: left; position: relative; }
+        .delete-btn { position: absolute; right: 10px; top: 10px; color: red; cursor: pointer; }
+
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     </style>
 </head>
 <body onload="checkAuth()">
 
-<div id="claw-alert-overlay">
-    <div class="claw-alert-box">
-        <h2 id="claw-title" class="claw-alert-title">DİKKAT!</h2>
-        <p id="claw-msg" style="margin-bottom:20px; font-family:'Oswald';"></p>
-        <div id="passo-link-container" style="display:none; margin-bottom:20px;">
-            <a href="https://www.passo.com.tr/tr/kategori/futbol-mac-biletleri/4615" target="_blank" style="color:var(--orange); font-weight:bold; text-decoration:underline;" data-key="passo_text">PASSO'DAN ALMAK İÇİN TIKLA</a>
-        </div>
-        <button class="checkout-btn" onclick="closeClawAlert()" data-key="ok_btn">TAMAM</button>
+<div id="claw-alert-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999999; align-items:center; justify-content:center;">
+    <div class="auth-box">
+        <h2 id="claw-title">DİKKAT!</h2>
+        <p id="claw-msg" style="margin-bottom:20px;"></p>
+        <button class="checkout-btn" onclick="closeClawAlert()">TAMAM</button>
     </div>
 </div>
 
 <div id="auth-overlay">
-    <div class="auth-box" id="login-box">
+    <div class="auth-box">
         <h1 style="color:var(--orange)">LYNEXNON FC</h1>
-        <h3 data-key="login_title">PENÇE GİRİŞİ</h3>
-        <input type="text" id="user-mail" class="pay-input">
-        <input type="password" id="user-pass" class="pay-input">
-        <button class="checkout-btn" onclick="handleLogin()" data-key="login_btn">GİRİŞ YAP</button>
-        <p style="font-size: 12px; margin-top: 15px; cursor:pointer;" onclick="toggleAuthMode()" data-key="go_register">KAYIT OL</p>
-    </div>
-    <div class="auth-box" id="register-box" style="display: none;">
-        <h1 style="color:var(--orange)">LYNEXNON FC</h1>
-        <h3 data-key="register_title">YENİ AVCI KAYDI</h3>
-        <input type="text" id="reg-name" class="pay-input">
-        <input type="password" id="reg-pass" class="pay-input">
-        <input type="date" id="reg-birth" class="pay-input" style="color-scheme: dark;">
-        <button class="checkout-btn" onclick="handleRegister()" data-key="register_btn">KAYIT OL</button>
-        <p style="font-size: 12px; margin-top: 15px; cursor:pointer;" onclick="toggleAuthMode()" data-key="go_login">GİRİŞ YAP</p>
+        <h3>PENÇE GİRİŞİ</h3>
+        <input type="text" id="user-mail" class="pay-input" placeholder="AVCI ADI">
+        <input type="password" id="user-pass" class="pay-input" placeholder="PAROLA">
+        <button class="checkout-btn" onclick="handleLogin()">GİRİŞ YAP</button>
     </div>
 </div>
 
 <div id="main-content">
     <header>
         <div style="display: flex; align-items: center;">
-            <div onclick="toggleMenu()" style="font-size:24px;">☰</div>
-            <div class="logo" onclick="showPage('matchHubPage')" style="margin-left:15px; color:var(--orange); font-size:26px;">LYNEXNON FC</div>
+            <div onclick="toggleMenu()" style="font-size:24px; cursor:pointer;">☰</div>
+            <div class="logo" onclick="showPage('matchHubPage')" style="margin-left:15px; color:var(--orange); font-size:26px; cursor:pointer;">LYNEXNON FC</div>
         </div>
         <div style="display: flex; align-items: center;">
-            <select class="lang-select" id="lang-picker" onchange="setLang(this.value)">
-                <option value="tr">TR</option><option value="en">EN</option><option value="de">DE</option>
-                <option value="fr">FR</option><option value="es">ES</option><option value="it">IT</option>
-                <option value="hr">HR</option><option value="da">DA</option><option value="pt">PT</option>
-                <option value="lv">LV</option><option value="ro">RO</option>
-            </select>
-            <button onclick="logout()" style="background:red; color:white; border:none; padding:8px 15px; font-family:'Oswald';" data-key="logout_btn">ÇIKIŞ</button>
-            <div class="cart-status" style="margin-left:10px;"><span data-key="cart">SEPET</span> (<span id="cart-count">0</span>)</div>
+            <button onclick="logout()" style="background:red; color:white; border:none; padding:8px 15px; font-family:'Oswald'; cursor:pointer;">ÇIKIŞ</button>
+            <div class="cart-status" style="margin-left:10px;">SEPET (<span id="cart-count">0</span>)</div>
         </div>
     </header>
 
     <div id="side-menu">
-        <div style="text-align: right; color: var(--orange);" onclick="toggleMenu()" data-key="close">KAPAT X</div>
-        <a href="#" class="side-link" onclick="showPage('matchHubPage'); toggleMenu();" data-key="side_home">🏠 ANA SAYFA</a>
-        <a href="#" class="side-link" onclick="showPage('profilePage'); toggleMenu();" data-key="side_profile">👤 HESABIM</a>
-        <a href="#" class="side-link" onclick="showPage('newsPage'); toggleMenu();" data-key="side_news">📰 HABERLER</a>
-        <a href="#" class="side-link" onclick="showPage('standingsPage'); toggleMenu();" data-key="side_standings">🏆 PUAN DURUMU</a>
-        <a href="#" class="side-link" onclick="showPage('storePage'); toggleMenu();" data-key="side_shop">👕 FORMA MAĞAZASI</a>
-        <a href="#" class="side-link" onclick="showTicketMaintenance()" data-key="side_tickets">🎫 BİLET AL</a>
+        <div style="text-align: right; color: var(--orange);" onclick="toggleMenu()">KAPAT X</div>
+        <a class="side-link" onclick="showPage('matchHubPage'); toggleMenu();">🏠 ANA SAYFA</a>
+        <a class="side-link" onclick="showPage('storePage'); toggleMenu();">👕 ZIRH MAĞAZASI</a>
+        
+        <div id="admin-only-link" style="display:none;">
+            <a class="side-link" onclick="showPage('adminPage'); toggleMenu();" style="color: #00ff00; border: 1px solid #00ff00;">🛡️ YÖNETİM PANELİ</a>
+        </div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #333;">
+            <a class="side-link" onclick="showPage('complaintPage'); toggleMenu();" style="color: #ff4500;">📢 ŞİKAYET ET</a>
+        </div>
     </div>
 
     <div class="container">
-        <div id="storePage" class="page active">
-            <h2 style="color: var(--orange); text-align: center;" data-key="shop_title">ZIRH KOLEKSİYONU</h2>
+        <div id="matchHubPage" class="page active">
+            <h2 style="text-align:center;">SIRADAKİ MAÇ</h2>
+            <div style="text-align:center; padding:40px; border:2px solid var(--orange); background:rgba(0,0,0,0.8);">
+                <div id="countdown" style="font-size: 50px; font-family: 'Creepster';">00:00:00:00</div>
+            </div>
+            <button class="checkout-btn" style="margin-top:20px;" onclick="showPage('storePage')">FORMA ALMAK İÇİN PENÇELE</button>
+        </div>
+
+        <div id="storePage" class="page">
+            <h2 style="color:var(--orange); text-align:center;">ZIRH KOLEKSİYONU</h2>
             <div class="product-grid">
-                <div class="product-btn" onclick="openDetail('home')"><img src="1749061745806 (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_home">İÇ SAHA</h3><b>4.500 TL</b></div>
-                <div class="product-btn" onclick="openDetail('away')"><img src="1749061696337 (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_away">DEPLASMAN</h3><b>4.500 TL</b></div>
-                <div class="product-btn" onclick="openDetail('gk')"><img src="1749061794051 (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_gk">KALECİ</h3><b>4.500 TL</b></div>
-                <div class="product-btn" onclick="openDetail('alt')"><img src="preview-2025-09-17T10_30_43.513Z (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_alt">ALTERNATİF</h3><b>4.000 TL</b></div>
-                
-                <div class="product-btn" onclick="openDetail('train')"><img src="1749061794051 (1).jpg" style="width:100%; height:180px; object-fit:contain; filter:grayscale(1);"><h3 data-key="p_train">ANTRENMAN</h3><b>3.000 TL</b></div>
-                <div class="product-btn" onclick="openDetail('rain')"><img src="preview-2025-09-17T10_30_43.513Z (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_rain">YAĞMURLUK</h3><b>3.500 TL</b></div>
-                <div class="product-btn" onclick="openDetail('jacket')"><img src="1749061745806 (1).jpg" style="width:100%; height:180px; object-fit:contain; filter:brightness(0.7);"><h3 data-key="p_jacket">ARENA CEKET</h3><b>3.800 TL</b></div>
-                <div class="product-btn" onclick="openDetail('tee')"><img src="1749061696337 (1).jpg" style="width:100%; height:180px; object-fit:contain;"><h3 data-key="p_tee">LOGOLU TEE</h3><b>1.500 TL</b></div>
+                <div class="product-btn" onclick="openDetail('home')"><img src="1749061745806 (1).jpg" style="width:100%; height:150px; object-fit:contain;"><h3>İÇ SAHA</h3></div>
+                <div class="product-btn" onclick="openDetail('away')"><img src="1749061696337 (1).jpg" style="width:100%; height:150px; object-fit:contain;"><h3>DEPLASMAN</h3></div>
+                <div class="product-btn" onclick="openDetail('gk')"><img src="1749061794051 (1).jpg" style="width:100%; height:150px; object-fit:contain;"><h3>KALECİ</h3></div>
+                <div class="product-btn" onclick="openDetail('alt')"><img src="preview-2025-09-17T10_30_43.513Z (1).jpg" style="width:100%; height:150px; object-fit:contain;"><h3>ALTERNATİF</h3></div>
             </div>
         </div>
 
-        <div id="matchHubPage" class="page">
-            <div style="text-align: center; background: rgba(0,0,0,0.8); padding: 20px; border: 2px solid var(--orange); margin-bottom: 20px;">
-                <h3 style="color: var(--orange);" data-key="next_hunt">SIRADAKİ AV</h3>
-                <div id="countdown" style="font-size: 40px; font-family: 'Creepster'; color: #fff;">00:00:00:00</div>
-                <button class="checkout-btn" onclick="showTicketMaintenance()" style="background: #fff; color: #000; margin-top: 15px; border: 2px solid var(--orange);" data-key="buy_tickets_btn">BİLETİNİ PENÇELE</button>
-            </div>
-            <img src="Green Yellow White Modern Football Starting Line Up Instagram Post kopyası kopyası kopyası kopyası kopyası kopyası.jpg" style="width:100%; height:auto; border: 1px solid var(--orange);">
-            <button class="checkout-btn" onclick="showPage('storePage')" style="margin-top: 20px;" data-key="buy_kit_btn">FORMA SATIN ALMAK İÇİN PENÇELE</button>
-        </div>
-
-        <div id="profilePage" class="page">
-            <h2 style="color: var(--orange); text-align: center;" data-key="profile_title">AVCI KARTI</h2>
-            <div style="background: rgba(10,10,10,0.9); padding: 40px; border: 3px solid var(--orange); text-align: center;">
-                <div style="font-size: 60px;">🦁</div>
-                <h1 id="prof-user" style="color:var(--orange)"></h1>
-                <p><span data-key="birth_label">DOĞUM TARİHİ</span>: <span id="prof-birth"></span></p>
+        <div id="complaintPage" class="page">
+            <h2 style="color:var(--orange); text-align:center;">ŞİKAYET VE ÖNERİ</h2>
+            <div class="auth-box" style="margin: 0 auto; background: rgba(20,20,20,0.9);">
+                <p>Sorununuzu veya önerinizi yazın, aslanlar incelesin.</p>
+                <textarea id="complaint-text" class="pay-input" style="height: 150px; resize: none;" placeholder="MESAJINIZI BURAYA YAZIN..."></textarea>
+                <button class="checkout-btn" onclick="submitComplaint()">GÖNDER</button>
             </div>
         </div>
 
-        <div id="detailPage" class="page">
-            <button onclick="showPage('storePage')" style="background: none; border: none; color: #888; margin-bottom: 20px;" data-key="back_btn">← GERİ DÖN</button>
-            <div style="display: flex; flex-wrap: wrap; gap: 30px; background: rgba(10,10,10,0.9); padding: 30px; border: 2px solid var(--orange);">
-                <div style="flex: 1; min-width: 300px;"><img id="detail-img" src="" style="width: 100%; height: auto;"></div>
-                <div style="flex: 1; min-width: 300px;">
-                    <h1 id="detail-title" style="color: var(--orange);"></h1>
-                    <h2 id="detail-price"></h2>
-                    <p id="detail-desc" style="text-transform: none; color: #ccc; line-height: 1.6;"></p>
-                    <button class="checkout-btn" onclick="addToCartDetailed()" style="width: auto; padding: 10px 30px;" data-key="add_to_cart">SEPETE EKLE</button>
-                </div>
+        <div id="adminPage" class="page">
+            <h2 style="color:#00ff00; text-align:center;">🛡️ LYNEXNON YÖNETİM MERKEZİ</h2>
+            <div style="background:rgba(10,10,10,0.9); padding:20px; border:2px solid #00ff00;">
+                <h3>📥 GELEN ŞİKAYETLER</h3>
+                <div id="complaint-list-admin">
+                    </div>
+                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+                <h3>💬 CANLI MESAJ SİSTEMİ</h3>
+                <button class="checkout-btn" style="background:#444;" onclick="alert('Canlı mesaj modu yakında vdstden aktif edilecek!')">MESAJLAŞMAYI BAŞLAT (VDS)</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const langData = {
-        tr: { login_title: "PENÇE GİRİŞİ", logout_btn: "ÇIKIŞ", cart: "SEPET", side_home: "🏠 ANA SAYFA", side_profile: "👤 HESABIM", side_news: "📰 HABERLER", side_standings: "🏆 PUAN DURUMU", side_shop: "👕 FORMA MAĞAZASI", side_tickets: "🎫 BİLET AL", profile_title: "AVCI KARTI", birth_label: "DOĞUM TARİHİ", back_btn: "← GERİ DÖN", add_to_cart: "SEPETE EKLE", next_hunt: "SIRADAKİ AV", buy_tickets_btn: "BİLETİNİ PENÇELE", buy_kit_btn: "FORMA ALMAK İÇİN PENÇELE", shop_title: "ZIRH KOLEKSİYONU", ok_btn: "TAMAM", maint_msg: "Bilet Sayfamız Bakımda Ama İsterseniz Passodan Alabilirsiniz", passo_text: "PASSO'DAN ALMAK İÇİN TIKLA", u_ph: "KULLANICI ADI", p_ph: "PAROLA", p_home: "İÇ SAHA", p_away: "DEPLASMAN", p_gk: "KALECİ", p_alt: "ALTERNATİF", p_train: "ANTRENMAN", p_rain: "YAĞMURLUK", p_jacket: "ARENA CEKET", p_tee: "LOGOLU TEE" },
-        en: { login_title: "CLAW LOGIN", logout_btn: "LOGOUT", cart: "CART", side_home: "🏠 HOME", side_profile: "👤 PROFILE", side_shop: "👕 KIT SHOP", side_tickets: "🎫 TICKETS", profile_title: "HUNTER CARD", birth_label: "DATE OF BIRTH", back_btn: "← BACK", add_to_cart: "ADD TO CART", shop_title: "ARMOR COLLECTION", ok_btn: "OK", maint_msg: "Maintenance! Use Passo", passo_text: "CLICK FOR PASSO", u_ph: "USERNAME", p_ph: "PASSWORD" },
-        de: { login_title: "KLAUEN-LOGIN", logout_btn: "LOGOUT", cart: "WARENKORB", side_home: "🏠 STARTSEITE", side_shop: "👕 SHOP", side_tickets: "🎫 TICKETS", ok_btn: "OK", maint_msg: "Wartung! Passo nutzen", u_ph: "BENUTZERNAME", p_ph: "PASSWORT" },
-        fr: { login_title: "CONNEXION", side_home: "🏠 ACCUEIL", side_shop: "👕 BOUTIQUE", maint_msg: "Maintenance! Utilisez Passo" },
-        lv: { login_title: "NAGU IEEJA", side_home: "🏠 SĀKUMS", side_shop: "👕 VEIKALS", maint_msg: "Apkope! Izmantojiet Passo" }
-    };
+    let cartCount = 0;
 
-    const products = {
-        home: { t: "İÇ SAHA ZIRHI", pr: "4.500 TL", i: "1749061745806 (1).jpg", d: "Arena kükremesi." },
-        away: { t: "DEPLASMAN ZIRHI", pr: "4.500 TL", i: "1749061696337 (1).jpg", d: "Beyaz asalet." },
-        gk: { t: "KALECİ ZIRHI", pr: "4.500 TL", i: "1749061794051 (1).jpg", d: "Kalede aslan." },
-        alt: { t: "ALTERNATİF ZIRH", pr: "4.000 TL", i: "preview-2025-09-17T10_30_43.513Z (1).jpg", d: "Modern güç." },
-        train: { t: "PRO ANTRENMAN", pr: "3.000 TL", i: "1749061794051 (1).jpg", d: "Antrenman kiti." },
-        rain: { t: "YAĞMURLUK", pr: "3.500 TL", i: "preview-2025-09-17T10_30_43.513Z (1).jpg", d: "Fırtına zırhı." },
-        jacket: { t: "ARENA CEKET", pr: "3.800 TL", i: "1749061745806 (1).jpg", d: "Maç öncesi." },
-        tee: { t: "LOGOLU TEE", pr: "1.500 TL", i: "1749061696337 (1).jpg", d: "Günlük stil." }
-    };
+    // Şikayet Gönderme
+    function submitComplaint() {
+        const text = document.getElementById('complaint-text').value;
+        const user = localStorage.getItem('lynex_user') || "Anonim";
+        if(!text) return;
 
-    let currentLang = 'tr'; let cartCount = 0;
-
-    function setLang(lang) {
-        currentLang = lang; const data = langData[lang] || langData['en'];
-        document.querySelectorAll('[data-key]').forEach(el => { const k = el.getAttribute('data-key'); if(data[k]) el.innerText = data[k]; });
-        document.getElementById('user-mail').placeholder = data.u_ph || "USERNAME";
-        document.getElementById('user-pass').placeholder = data.p_ph || "PASSWORD";
+        let complaints = JSON.parse(localStorage.getItem('lynex_complaints') || "[]");
+        complaints.push({ id: Date.now(), user: user, msg: text, date: new Date().toLocaleString() });
+        localStorage.setItem('lynex_complaints', JSON.stringify(complaints));
+        
+        document.getElementById('complaint-text').value = "";
+        clawAlert("BAŞARILI", "Mesajınız aslanlara iletildi!");
+        showPage('matchHubPage');
     }
 
-    function showTicketMaintenance() {
-        document.getElementById('passo-link-container').style.display = 'block';
-        clawAlert("ALERT", langData[currentLang]?.maint_msg || langData['en'].maint_msg);
-        if(document.getElementById('side-menu').classList.contains('open')) toggleMenu();
+    // Admin Panelini Doldurma
+    function loadAdminPanel() {
+        const listDiv = document.getElementById('complaint-list-admin');
+        let complaints = JSON.parse(localStorage.getItem('lynex_complaints') || "[]");
+        listDiv.innerHTML = complaints.length ? "" : "<p>Henüz şikayet yok.</p>";
+        
+        complaints.forEach(c => {
+            listDiv.innerHTML += `
+                <div class="complaint-card">
+                    <span class="delete-btn" onclick="deleteComplaint(${c.id})">✖</span>
+                    <strong>Gönderen:</strong> ${c.user}<br>
+                    <strong>Tarih:</strong> ${c.date}<br>
+                    <p style="text-transform:none; color:#ccc;">${c.msg}</p>
+                </div>
+            `;
+        });
     }
 
-    function openDetail(id) {
-        const p = products[id];
-        document.getElementById('detail-title').innerText = p.t;
-        document.getElementById('detail-price').innerText = p.pr;
-        document.getElementById('detail-img').src = p.i;
-        document.getElementById('detail-desc').innerText = p.d;
-        showPage('detailPage');
+    function deleteComplaint(id) {
+        let complaints = JSON.parse(localStorage.getItem('lynex_complaints') || "[]");
+        complaints = complaints.filter(c => c.id !== id);
+        localStorage.setItem('lynex_complaints', JSON.stringify(complaints));
+        loadAdminPanel();
     }
+
+    // Giriş Kontrol
+    function handleLogin() {
+        const user = document.getElementById('user-mail').value;
+        const pass = document.getElementById('user-pass').value;
+
+        // ADMİN GİRİŞİ
+        if(user === "ADMIN" && pass === "LYNEXADMIN2026") {
+            localStorage.setItem('is_admin', 'true');
+            localStorage.setItem('lynex_user', "YÖNETİCİ");
+            localStorage.setItem('lynex_remembered', 'true');
+            enterStore();
+        } else if(user && pass) {
+            localStorage.setItem('is_admin', 'false');
+            localStorage.setItem('lynex_user', user);
+            localStorage.setItem('lynex_remembered', 'true');
+            enterStore();
+        }
+    }
+
+    function enterStore() {
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        if(localStorage.getItem('is_admin') === 'true') {
+            document.getElementById('admin-only-link').style.display = 'block';
+            loadAdminPanel();
+        }
+    }
+
+    function checkAuth() {
+        if(localStorage.getItem('lynex_remembered') === 'true') enterStore();
+        startCountdown();
+    }
+
+    function logout() { localStorage.clear(); location.reload(); }
+    function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); }
+    function showPage(id) { 
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
+        document.getElementById(id).classList.add('active'); 
+        if(id === 'adminPage') loadAdminPanel();
+    }
+    function clawAlert(t, m) { document.getElementById('claw-title').innerText = t; document.getElementById('claw-msg').innerText = m; document.getElementById('claw-alert-overlay').style.display = 'flex'; }
+    function closeClawAlert() { document.getElementById('claw-alert-overlay').style.display = 'none'; }
 
     function startCountdown() {
         const target = new Date("Feb 28, 2026 20:00:00").getTime();
@@ -207,18 +222,6 @@
             if(document.getElementById("countdown")) document.getElementById("countdown").innerText = diff > 0 ? `${d}G ${h}S ${m}D ${s}S` : "AV BAŞLADI!";
         }, 1000);
     }
-    startCountdown();
-
-    function clawAlert(t, m) { document.getElementById('claw-title').innerText = t; document.getElementById('claw-msg').innerText = m; document.getElementById('claw-alert-overlay').style.display = 'flex'; }
-    function closeClawAlert() { document.getElementById('claw-alert-overlay').style.display = 'none'; document.getElementById('passo-link-container').style.display = 'none'; }
-    function checkAuth() { if (localStorage.getItem('lynex_remembered') === 'true') enterStore(); setLang('tr'); }
-    function handleRegister() { localStorage.setItem('lynex_user', document.getElementById('reg-name').value); localStorage.setItem('lynex_birth', document.getElementById('reg-birth').value); clawAlert("OK", "SUCCESS!"); toggleAuthMode(); }
-    function handleLogin() { if(document.getElementById('user-mail').value === localStorage.getItem('lynex_user')) { localStorage.setItem('lynex_remembered', 'true'); enterStore(); } else clawAlert("ERR", "WRONG!"); }
-    function enterStore() { document.getElementById('auth-overlay').style.display = 'none'; document.getElementById('main-content').style.display = 'block'; document.getElementById('prof-user').innerText = localStorage.getItem('lynex_user'); document.getElementById('prof-birth').innerText = localStorage.getItem('lynex_birth'); }
-    function logout() { localStorage.removeItem('lynex_remembered'); location.reload(); }
-    function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); }
-    function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
-    function addToCartDetailed() { cartCount++; document.getElementById('cart-count').innerText = cartCount; clawAlert("OK", "ADDED!"); showPage('storePage'); }
 </script>
 </body>
 </html>
